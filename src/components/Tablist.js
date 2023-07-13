@@ -3,6 +3,7 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { Box, Tab } from '@mui/material';
 import Content from "./content";
 
+
 const ExampleTabs = () => {
     const [value, setValue] = useState('1');
 

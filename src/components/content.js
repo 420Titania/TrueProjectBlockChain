@@ -1,8 +1,49 @@
 import React, {useEffect, useState} from 'react';
 import content from '../components/styles/content.css';
+import abi from "./insurance.json";
+import { ethers } from "ethers";
+
 
 
 const PackCard = () => {
+    const contractAddress = "0x510A514Ee629f6D35824471e26a6F4FDAE18550A";
+    const contractABI = abi.abi;
+
+    const purchasePolicy = async () => {
+        try {
+          const { ethereum } = window;
+      
+          if (ethereum) {
+            const provider = new ethers.providers.Web3Provider(ethereum, "any");
+            const signer = provider.getSigner();
+            const insuranceContract = new ethers.Contract(
+              contractAddress,
+              contractABI,
+              signer
+            );
+      
+            const premium = ethers.utils.parseEther("0.08"); // Convert 0.08 Ether to BigNumber
+      
+            console.log("Purchasing insurance policy...");
+            const policyTxn = await insuranceContract.purchasePolicy(premium, {
+              value: premium,
+            });
+      
+            await policyTxn.wait();
+      
+            console.log("Transaction mined:", policyTxn.hash);
+            console.log("Insurance policy purchased!");
+      
+            // Additional logic if needed
+      
+            // Clear the form fields or update UI as needed
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      
+      
     return (
         <div className="pack_card">
             <div className="banner">
@@ -51,7 +92,7 @@ const PackCard = () => {
                     <span className="price">0.08 ETH</span>
                     <span className="date">/month</span>
                 </div>
-                <a  className="btn" href="#">Buy Insurance</a>
+                <button type="button" className="btn" onClick={purchasePolicy}>Buy Insurance</button>
             </div>
         </div>
     );
