@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 
 
 const PackCard = () => {
-    const contractAddress = "0x510A514Ee629f6D35824471e26a6F4FDAE18550A";
+    const contractAddress = "0x31F8A1ec54B847EeD5BCdbB639bddDb88DF7494a";
     const contractABI = abi.abi;
 
     const purchasePolicy = async () => {
@@ -22,9 +22,19 @@ const PackCard = () => {
               signer
             );
       
-            const premium = ethers.utils.parseEther("0.08"); // Convert 0.08 Ether to BigNumber
+            const premium = ethers.utils.parseEther("0.001"); // Convert 0.08 Ether to BigNumber
       
             console.log("Purchasing insurance policy...");
+      
+            const balance = await provider.getBalance(provider.provider.selectedAddress);
+            const balanceInEth = ethers.utils.formatEther(balance);
+      
+            if (Number(balanceInEth) < 0.08) {
+              // Display warning to the user
+              alert("Not enough Ethereum balance to purchase the insurance policy.");
+              return;
+            }
+      
             const policyTxn = await insuranceContract.purchasePolicy(premium, {
               value: premium,
             });
@@ -42,6 +52,59 @@ const PackCard = () => {
           console.log(error);
         }
       };
+      
+      const fileClaim = async () => {
+        try {
+          const { ethereum } = window;
+      
+          if (ethereum) {
+            const provider = new ethers.providers.Web3Provider(ethereum, "any");
+            const signer = provider.getSigner();
+            const insuranceContract = new ethers.Contract(
+              contractAddress,
+              contractABI,
+              signer
+            );
+      
+            const amount = ethers.utils.parseEther("0.001"); // Set amount to 0.001 Ether
+      
+            console.log("Filing claim...");
+            const claimTxn = await insuranceContract.fileClaim(amount);
+      
+            await claimTxn.wait();
+      
+            console.log("Transaction mined:", claimTxn.hash);
+            console.log("Claim filed!");
+      
+            // Additional logic if needed
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };      
+
+      const getPolicy = async (address) => {
+        try {
+          const { ethereum } = window;
+      
+          if (ethereum) {
+            const provider = new ethers.providers.Web3Provider(ethereum, "any");
+            const signer = provider.getSigner();
+            const insuranceContract = new ethers.Contract(
+              contractAddress,
+              contractABI,
+              signer
+            );
+      
+            const policy = await insuranceContract.getPolicy(address);
+            console.log("Policy for address", address, ":", policy.toString());
+      
+            // Additional logic if needed
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };          
       
       
     return (
@@ -89,10 +152,10 @@ const PackCard = () => {
             <div className="bottom">
                 <div className="price_container">
                     <span className="devise"></span>
-                    <span className="price">0.08 ETH</span>
+                    <span className="price">0.001 ETH</span>
                     <span className="date">/month</span>
                 </div>
-                <button type="button" className="btn" onClick={purchasePolicy}>Buy Insurance</button>
+                <button type="button" className="btn" onClick={purchasePolicy}>Buy Insurance</button>                
             </div>
         </div>
     );
